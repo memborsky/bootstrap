@@ -43,6 +43,8 @@ then
   done
 fi
 
+mkdir -p `dirname $DOTFILES`
+
 # Clone down the dotfiles.
 git clone https://github.com/memborsky/dotfiles.git $DOTFILES
 
