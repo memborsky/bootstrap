@@ -1,0 +1,53 @@
+#!/bin/bash
+#
+# This script will download and bootstrap my dotfiles.
+
+# Assumption is made that you are going to put dotfiles into ~/code/dotfiles
+# If this is not correct for you, set DOTFILES ENVIRONMENT variable.
+
+if [ -z $DOTFILES ]
+then
+  DOTFILES=~/code/dotfiles
+fi
+
+# If the folder already exists, assume it is not ours. Prompt user for action taken.
+if [ -d $DOTFILES ]
+then
+  while true; do
+    printf " - The folder $DOTFILES already exists, do you want to [b]ackup or [o]verwrite it? "
+    read action
+
+    case "$action" in
+      b )
+        mv $DOTFILES ${DOTFILES}.backup
+        break
+        ;;
+
+      o )
+        # $DOTFILES is actually a symlink
+        if [ -L $DOTFILES ]
+        then
+          unlink $DOTFILES
+        else
+          rm -rf $DOTFILES
+        fi
+
+        break
+        ;;
+
+      * )
+        echo "Unsupported option, please try again."
+        continue
+        ;;
+    esac
+  done
+fi
+
+# Clone down the dotfiles.
+git clone https://github.com/memborsky/dotfiles.git $DOTFILES
+
+# Bootstrap the dotfiles.
+CURRENT_PWD=`pwd`
+cd $DOTFILES
+script/bootstrap
+cd $CURRENT_PWD
