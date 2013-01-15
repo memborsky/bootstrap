@@ -69,5 +69,35 @@ else
   fail 'gems'
 fi
 
+# git
+gitignore () {
+  if ! $(cat .gitignore | grep "$1")
+  then
+    echo "$1" >> .gitignore
+  fi
+}
+
+if [ -d .git ]
+then
+  info 'git'
+  git add .rbenv-*
+  git commit -m "Added .rbenv files for our project environment."
+
+  if ! [ -f .gitignore ]
+  then
+    echo "" > .gitignore
+  fi
+
+  gitignore '.bundler'
+  gitignore 'vendor/gems'
+
+  git add .gitignore
+  git commit -m "Updated .gitignore with exclusion of vendor/gems and .bundler."
+
+  success 'git'
+else
+  success '`pwd` is not a git repository, nothing performed.'
+fi
+
 echo ""
 echo "  You're all set!"
