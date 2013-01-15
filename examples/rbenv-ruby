@@ -39,7 +39,6 @@ then
   fi
   success '.rbenv-version'
 
-# TODO: Find out a better way to find out if rbenv is installed to ~/.rbenv or some place else.
   if [ -d `rbenv root`/plugins/rbenv-gemset ]
   then
     info '.rbenv-gemset'
