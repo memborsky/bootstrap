@@ -1,0 +1,67 @@
+#!/bin/sh
+#
+# bootstrap installs things.
+
+PROJECT_NAME=$(basename `pwd`)
+LOG_OUTPUT="/tmp/$PROJECT_NAME-bootstrap"
+RUBY_VERSION="1.9.3-p194"
+
+set -e
+
+echo ''
+
+info () {
+  printf "  [ \033[00;34m..\033[0m ] $1"
+}
+
+user () {
+  printf "\r  [ \033[0;33m?\033[0m ] $1 "
+}
+
+success () {
+  printf "\r\033[2K  [ \033[00;32mOK\033[0m ] $1\n"
+}
+
+fail () {
+  printf "\r\033[2K  [\033[0;31mFAIL\033[0m] $1\n"
+  echo ''
+  echo "  See $LOG_OUTPUT for more information."
+  exit
+}
+
+# rbenv
+info 'rbenv version'
+if ! [ -f .rbenv-version ] || "`cat .rbenv-version`" != "$RUBY_VERSION"
+then
+  echo $RUBY_VERSION > .rbenv-version
+fi
+success 'rbenv version'
+
+# gemsets
+info 'rbenv gemset'
+if ! [ -f .rbenv-gemsets ] || "`cat .rbenv-gemsets`" != "$PROJECT_NAME"
+then
+  echo $PROJECT_NAME > .rbenv-gemsets
+  rbenv gemset create $RUBY_VERSION $PROJECT_NAME >> $LOG_OUTPUT
+fi
+success 'rbenv gemset'
+
+# bundler
+info 'bundler'
+if test ! $(which bundle)
+then
+  gem install bundler > $LOG_OUTPUT
+fi
+success 'bundler'
+
+# gems
+info 'gems'
+if bundle install --binstubs --path vendor/gems >> $LOG_OUTPUT
+then
+  success 'gems'
+else
+  fail 'gems'
+fi
+
+echo ""
+echo "  You're all set!"
