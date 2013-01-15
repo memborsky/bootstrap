@@ -29,22 +29,28 @@ fail () {
   exit
 }
 
-# rbenv
-info 'rbenv version'
-if ! [ -f .rbenv-version ] || "`cat .rbenv-version`" != "$RUBY_VERSION"
+# rbenv (version and gemsets [if installed])
+if test $(which rbenv)
 then
-  echo $RUBY_VERSION > .rbenv-version
-fi
-success 'rbenv version'
+  info '.rbenv-version'
+  if "`cat .rbenv-version`" != "$RUBY_VERSION"
+  then
+    echo $RUBY_VERSION > .rbenv-version
+  fi
+  success '.rbenv-version'
 
-# gemsets
-info 'rbenv gemset'
-if ! [ -f .rbenv-gemsets ] || "`cat .rbenv-gemsets`" != "$PROJECT_NAME"
-then
-  echo $PROJECT_NAME > .rbenv-gemsets
-  rbenv gemset create $RUBY_VERSION $PROJECT_NAME >> $LOG_OUTPUT
+# TODO: Find out a better way to find out if rbenv is installed to ~/.rbenv or some place else.
+  if [ -d `rbenv root`/plugins/rbenv-gemset ]
+  then
+    info '.rbenv-gemset'
+    if "`cat .rbenv-gemsets`" != "$PROJECT_NAME"
+    then
+      echo $PROJECT_NAME > .rbenv-gemsets
+      rbenv gemset create $RUBY_VERSION $PROJECT_NAME >> $LOG_OUTPUT
+    fi
+    success '.rbenv-gemset'
+  fi
 fi
-success 'rbenv gemset'
 
 # bundler
 info 'bundler'
